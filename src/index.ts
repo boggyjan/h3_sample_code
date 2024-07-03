@@ -10,11 +10,6 @@ export const app = createApp({ debug: true })
 const router = createRouter()
 app.use(router)
 
-// [Nitro] Next Generation Server Toolkit 主要由下列三個最重要的東西組成：
-// - [listhen] Elegant HTTP Listener https://github.com/unjs/listhen 負責聽http（主要的code在cli.mjs, index.mjs）
-// - [crossws] runtime agnostic WebSockets https://crossws.unjs.io 負責websocket
-// - [h3] The Web Framework for Modern JavaScript Era https://h3.unjs.io/ 負責將router的寫法統一
-
 // common route
 router.get(
   '/',
