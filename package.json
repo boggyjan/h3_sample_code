@@ -1,0 +1,24 @@
+{
+  "name": "listhen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "npm run tsc & npm run serve",
+    "tsc": "tsc --watch",
+    "serve": "nodemon ./dist/index"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "h3": "^1.12.0",
+    "listhen": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "nodemon": "^3.1.4",
+    "typescript": "^5.5.3"
+  }
+}
