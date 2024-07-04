@@ -58,7 +58,8 @@ enum WsPaths {
   WS2 = '/_ws2'
 }
 
-// 這邊無法用interface!!!
+// 這邊無法用 interface 只能用 type
+// interface HooksGroup {
 type HooksGroup = {
   // Hooks中的各個function我有可能只用到其中幾個，所以加了Partial<>
   // [key: string]: Partial<Hooks>;
