@@ -2,6 +2,9 @@
 import { readFile } from 'node:fs/promises'
 import { createApp, createRouter, defineEventHandler, toNodeListener, defineWebSocketHandler } from 'h3'
 import { listen } from 'listhen'
+import { defineHooks } from 'crossws'
+import type { Hooks, Peer, WSRequest } from 'crossws'
+
 
 // Create an app instance
 export const app = createApp({ debug: true })
@@ -46,17 +49,35 @@ router.get(
 )
 
 // websocket hooks
-const peers: Array<any> = []
-const peers2: Array<any> = []
-// websocket hooks
-const hooks: any = {
-  '/_ws': {
-    open(peer: any) {
+// 兩個 peers 陣列裡面都是 Peer 類別
+const peers: Array<Peer> = []
+const peers2: Array<Peer> = []
+
+enum WsPaths {
+  WS = '/_ws',
+  WS2 = '/_ws2'
+}
+
+// 這邊無法用interface!!!
+type HooksGroup = {
+  // Hooks中的各個function我有可能只用到其中幾個，所以加了Partial<>
+  // [key: string]: Partial<Hooks>;
+  // key 必須是 WsPaths 其中一個
+  [key in WsPaths]: Partial<Hooks>;
+}
+
+const hooks: HooksGroup = {
+  [WsPaths.WS]: defineHooks({
+    open(peer) {
       console.log('[ws] open', peer)
       peers.push(peer)
     },
 
-    message(peer: any, message: any) {
+    // upgrade (req) {
+    //   console.log('[ws] upgrade', req)
+    // },
+
+    message(peer, message) {
       console.log('[ws] message', peer, message)
       if (message.text().includes('ping')) {
         peer.send('pong')
@@ -67,22 +88,28 @@ const hooks: any = {
       }
     },
 
-    close(peer: any, event: any) {
+    close(peer, event) {
       console.log('[ws] close', peer, event)
+      const idx = peers.findIndex(p => p === peer)
+      peers.splice(idx, 1)
     },
 
-    error(peer: any, error: any) {
+    error(peer, error) {
       console.log('[ws] error', peer, error)
     }
-  },
+  }),
 
-  '/_ws2': {
-    open(peer: any) {
+  [WsPaths.WS2]: defineHooks({
+    open(peer) {
       console.log('[ws2] open', peer)
       peers2.push(peer)
     },
 
-    message(peer: any, message: any) {
+    // upgrade (req) {
+    //   console.log('[ws] upgrade', req)
+    // },
+
+    message(peer, message) {
       console.log('[ws2] message', peer, message)
       if (message.text().includes('ping')) {
         peer.send('pong')
@@ -93,25 +120,27 @@ const hooks: any = {
       }
     },
 
-    close(peer: any, event: any) {
+    close(peer, event) {
       console.log('[ws2] close', peer, event)
+      const idx = peers2.findIndex(p => p === peer)
+      peers2.splice(idx, 1)
     },
 
-    error(peer: any, error: any) {
+    error(peer, error) {
       console.log('[ws2] error', peer, error)
     }
-  }
+  })
 }
 
 // websocket routers
 router.get(
-  '/_ws',
-  defineWebSocketHandler(hooks['/_ws'])
+  WsPaths.WS,
+  defineWebSocketHandler(hooks[WsPaths.WS])
 )
 
 router.get(
-  '/_ws2',
-  defineWebSocketHandler(hooks['/_ws'])
+  WsPaths.WS2,
+  defineWebSocketHandler(hooks[WsPaths.WS2])
 )
 
 // listen to http
@@ -121,7 +150,8 @@ const listener = await listen(toNodeListener(app), {
   // 當每次有新peer連接時會呼叫
   ws: {
     async resolve(info) {
-      return hooks[info.url]
+      // info.url 必須是 WsPaths 其中一個值！
+      return hooks[info.url as WsPaths]
     }
   }
 })
