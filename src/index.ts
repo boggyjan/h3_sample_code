@@ -22,7 +22,6 @@ router.get(
 )
 
 // websocket
-// websocket
 // 在這個範例中建立了兩個不一樣的path去分別處理兩個聊天室
 
 // sample chat page route
