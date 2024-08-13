@@ -73,9 +73,9 @@ const hooks: HooksGroup = {
       peers.push(peer)
     },
 
-    // upgrade (req) {
-    //   console.log('[ws] upgrade', req)
-    // },
+    upgrade (req) {
+      console.log('[ws] upgrade', req)
+    },
 
     message(peer, message) {
       console.log('[ws] message', peer, message)
@@ -105,9 +105,9 @@ const hooks: HooksGroup = {
       peers2.push(peer)
     },
 
-    // upgrade (req) {
-    //   console.log('[ws] upgrade', req)
-    // },
+    upgrade (req) {
+      console.log('[ws] upgrade', req)
+    },
 
     message(peer, message) {
       console.log('[ws2] message', peer, message)
